@@ -1,0 +1,13 @@
+server:
+  port: 5003
+
+spring:
+  application:
+    name: SUBMISSION_SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lms_submission_service
+    username: postgres
+    password: post
+  jpa:
+    hibernate:
+      ddl-auto: update
