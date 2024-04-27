@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: SUBMISSION_SERVICE
+    name: SUBMISSION-SERVICE
   datasource:
     url: #
     username: #
