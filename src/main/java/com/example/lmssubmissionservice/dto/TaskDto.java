@@ -22,7 +22,9 @@ public class TaskDto {
 
     private String imageUrl;
 
-    private UUID assignedUserId;
+    private UUID createdByUserId;
+
+    private List<UUID> assignedUserId;
 
     //initialized it as well otherwise getting null in response instead of []
     private List<String> tags = new ArrayList<>();               //tech stack of assignment
