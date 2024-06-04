@@ -1,5 +1,6 @@
 package com.example.lmssubmissionservice.service;
 
+import com.example.lmssubmissionservice.dto.SubmissionResponse;
 import com.example.lmssubmissionservice.dto.TaskDto;
 import com.example.lmssubmissionservice.entity.Submission;
 import com.example.lmssubmissionservice.repository.SubmissionRepository;
@@ -9,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -22,7 +25,7 @@ public class SubmissionService implements SubmissionManager {
     private TaskManager taskManager;
 
     @Override
-    public Submission submitTask(UUID taskId, String submissionUrl, UUID userId) throws Exception {
+    public SubmissionResponse submitTask(UUID taskId, String submissionUrl, UUID userId) throws Exception {
 
         TaskDto taskDto = taskManager.getTaskById(taskId);
 
@@ -36,7 +39,13 @@ public class SubmissionService implements SubmissionManager {
                     LocalDateTime.now()
             );
 
-            return repository.save(submission);
+            Submission savedSubmission = repository.save(submission);
+
+            return new SubmissionResponse(
+                    savedSubmission,
+                    taskDto.getTitle(),
+                    taskDto.getCreatedByUserId()
+            );
         }
 
         throw new Exception("Task not found for id: " + taskId);

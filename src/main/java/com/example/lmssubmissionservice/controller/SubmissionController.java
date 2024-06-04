@@ -1,14 +1,18 @@
 package com.example.lmssubmissionservice.controller;
 
+import com.example.lmssubmissionservice.dto.MessageDto;
+import com.example.lmssubmissionservice.dto.SubmissionResponse;
 import com.example.lmssubmissionservice.dto.UserDto;
 import com.example.lmssubmissionservice.entity.Submission;
 import com.example.lmssubmissionservice.service.SubmissionService;
+import com.example.lmssubmissionservice.specifications.NotificationManager;
 import com.example.lmssubmissionservice.specifications.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,6 +26,9 @@ public class SubmissionController {
     @Autowired
     private UserManager userManager;
 
+    @Autowired
+    private NotificationManager notificationManager;
+
     @PostMapping
     public ResponseEntity<Submission> submitTask(
             @RequestParam UUID taskId,
@@ -30,12 +37,26 @@ public class SubmissionController {
     ) throws Exception {
         UserDto userDto = userManager.getUserProfile(token);
 
-        Submission submission = submissionService.submitTask(
+        SubmissionResponse submissionResponse = submissionService.submitTask(
                 taskId,
                 submissionUrl,
                 userDto.getId());
 
-        return new ResponseEntity<>(submission, HttpStatus.CREATED);
+        //send notification
+        if(submissionResponse.getSubmission().getTaskId() == taskId &&
+                submissionResponse.getSubmission().getStatus().equals("PENDING")){
+            notificationManager.sendMessage(
+                    new MessageDto(
+                            userDto.getFullName() +
+                                    " has made a submission for \"" +
+                                    submissionResponse.getTaskTitle() +
+                                    "\"",
+                            submissionResponse.getTaskCreatedBy()
+                    )
+            );
+        }
+
+        return new ResponseEntity<>(submissionResponse.getSubmission(), HttpStatus.CREATED);
 
     }
 
